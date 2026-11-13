@@ -1,0 +1,36 @@
+# Notas de trabajo con datos de la cuenta (fuera de git: el repo es público)
+/BITACORA.md
+/docs/pendientes.md
+
+# OpenTofu: estado, planes y variables locales (tienen IDs de la cuenta)
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+*.tfvars
+!*.tfvars.example
+
+# Configuración local de la Pi (endpoints, IDs)
+pi/*.env
+!pi/*.env.example
+
+# Configuración generada de la página (IDs de Cognito, canal)
+web/config.js
+
+# Builds del SDK de KVS
+pi/build/
+pi/amazon-kinesis-video-streams-webrtc-sdk-c/
+
+# Secretos y llaves en cualquier carpeta
+*.pem
+*.key
+*.pem.crt
+*.csr
+.env
+
+# Editores / SO
+.vscode/
+.idea/
+.claude/
+Thumbs.db
+.DS_Store

@@ -1,0 +1,3 @@
+# Copiar a terraform.tfvars (fuera de git) y ajustar.
+region    = "us-east-2"
+device_id = "pi5-cam-01"
