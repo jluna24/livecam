@@ -1,6 +1,6 @@
 # livecam — documento de diseño
 
-> Estado: **diseño aprobado, paso 0 (base del repo) en curso.**
+> Estado: **pasos 0 y 1 listos; sigue el paso 2 (canal KVS + SDK de C en la Pi).**
 
 ## 1. Objetivo
 
@@ -77,6 +77,13 @@ Precios de us-east-1/us-east-2 según la página de precios de KVS (verificado 2
 - **Si la webcam entrega H.264 nativo** (algunas Logitech C920 de primeras versiones): se reenvía sin recodificar y casi no gasta CPU.
 - **Si entrega MJPEG o YUYV:** se codifica por software con `x264enc` (`tune=zerolatency`, `speed-preset=ultrafast`). Es suficiente para 720p a 15–30 fps en la Pi 5, pero ocupa 1–2 núcleos y la calienta, así que requiere el disipador activo.
 - **Arranque conservador:** 1280×720 a 15 fps y ~1.5 Mbps. Se sube si el CPU y la temperatura lo permiten.
+
+### Resultado del paso 1 (2026-11-12)
+
+- **Webcam real: Logitech C922 Pro Stream.** No entrega H.264 nativo; solo YUYV (720p a 10 fps como máximo) y **MJPEG** (720p a 60/30/15 fps, 1080p a 30 fps).
+- **Pipeline:** `v4l2src` (MJPEG 1280×720 a 15 fps) → `jpegdec` → `videoconvert` → `x264enc` (`ultrafast`, `zerolatency`, 1500 kbps, sin B-frames, perfil baseline). Script: `pi/prueba-camara.sh`.
+- **Prueba de 10 min:** 15.00 fps de promedio (14.86–15.13), **~28 % de un núcleo**, temperatura promedio de 51.6 °C y máxima de **53.8 °C**, ventilador a ~3,000 RPM, `throttled=0x0` todo el tiempo.
+- El consumo fue mucho menor que el estimado (1–2 núcleos), así que hay margen para subir a 720p a 30 fps más adelante.
 
 ## 6. Pasos
 
