@@ -1,0 +1,103 @@
+:root {
+  --bg: #0b0d10;
+  --panel: #15181d;
+  --text: #e8eaed;
+  --muted: #9aa0a6;
+  --ok: #34a853;
+  --warn: #fbbc04;
+  --err: #ea4335;
+  --accent: #8ab4f8;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font: 15px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+main {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+
+.video-wrap {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+  min-height: 56vw;
+}
+
+video {
+  width: 100%;
+  max-height: calc(100vh - 56px);
+  object-fit: contain;
+  background: #000;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  text-align: center;
+  background: rgba(0, 0, 0, .55);
+}
+.overlay[hidden] { display: none; }
+.overlay p { margin: 0; color: var(--muted); max-width: 32em; }
+
+button {
+  font: inherit;
+  padding: 12px 22px;
+  border-radius: 999px;
+  border: 0;
+  background: var(--accent);
+  color: #0b0d10;
+  font-weight: 600;
+  cursor: pointer;
+}
+button.sec {
+  padding: 6px 14px;
+  background: transparent;
+  color: var(--text);
+  border: 1px solid #3c4043;
+  font-weight: 500;
+}
+
+footer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  background: var(--panel);
+  min-height: 56px;
+  flex-wrap: wrap;
+}
+.sep { flex: 1; }
+.estado::before {
+  content: "";
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  margin-right: 8px;
+  background: var(--muted);
+  vertical-align: 1px;
+}
+.estado.ok::before { background: var(--ok); }
+.estado.warn::before { background: var(--warn); }
+.estado.err::before { background: var(--err); }
+.ruta { color: var(--muted); font-size: 13px; }

@@ -1,6 +1,6 @@
 # livecam — documento de diseño
 
-> Estado: **pasos 0–2 listos; paso 3 casi listo (falta la prueba de corte de internet).**
+> Estado: **pasos 0–2 y 4 listos; al paso 3 le falta la prueba de corte de internet; sigue el paso 5.**
 
 ## 1. Objetivo
 
@@ -98,6 +98,13 @@ Precios de us-east-1/us-east-2 según la página de precios de KVS (verificado 2
 - El ejemplo se compila con `-DIOT_CORE_ENABLE_CREDENTIALS=ON` y lee `AWS_IOT_CORE_*` de `~/livecam/livecam.env`, generado a partir de `pi/livecam.env.example`.
 - **Servicio** `pi/livecam-master.service`: `Restart=always`, sin límite de reintentos y ordenado después de `time-sync.target` (la Pi no tiene batería de reloj).
 - **Pruebas:** al matar el proceso, systemd lo reinicia y se reconecta. Al reiniciar la Pi, el servicio arranca solo ~36 s después del boot, con la hora ya sincronizada, y se conecta al primer intento.
+
+### Resultado del paso 4 (2026-11-12)
+
+- **Página** (`web/`): HTML, CSS y JS sin build. Usa el SDK de KVS para JavaScript 2.9.0 y aws4fetch 1.0.20, que se hospedan en el mismo bucket (sin CDN externo) y permiten una CSP con `script-src 'self'`. No usa el AWS SDK completo: Cognito Identity se llama con `fetch` y las llamadas a KVS se firman con aws4fetch.
+- **Login:** hosted UI de Cognito con código de autorización + PKCE (cliente sin secreto). El refresh token dura 30 días y se guarda en `localStorage`. El Identity Pool no permite identidades anónimas.
+- `config.js` lo genera OpenTofu directamente en S3 (`aws_s3_object` con `content`); nunca existe en el repo. El usuario se crea con `aws cognito-idp admin-create-user` (invitación por correo), así que la contraseña no queda en el estado de OpenTofu.
+- **Prueba:** con el celular en datos móviles, la conexión fue Pi `srflx` ↔ celular `relay` (**vía TURN**, RTT ~184 ms) y el video se vio bien. En el WiFi de la casa fue directa (host, 4–7 ms). La página muestra en la barra inferior si el video llega directo o por TURN.
 
 ## 6. Pasos
 

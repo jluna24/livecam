@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0b0d10">
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:;
+                 connect-src 'self' https://*.amazonaws.com wss://*.amazonaws.com https://*.amazoncognito.com;
+                 media-src 'self' blob:; base-uri 'none'; form-action 'none'; frame-ancestors 'none'">
+  <title>livecam</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main>
+    <div class="video-wrap">
+      <video id="video" autoplay playsinline muted></video>
+      <div id="overlay" class="overlay">
+        <p id="mensaje">Cargando…</p>
+        <button id="btn-entrar" hidden>Iniciar sesión</button>
+        <button id="btn-conectar" hidden>Conectar</button>
+      </div>
+    </div>
+
+    <footer>
+      <span id="estado" class="estado">—</span>
+      <span id="ruta" class="ruta"></span>
+      <span class="sep"></span>
+      <button id="btn-reconectar" class="sec" hidden>Reconectar</button>
+      <button id="btn-salir" class="sec" hidden>Salir</button>
+    </footer>
+  </main>
+
+  <script src="config.js"></script>
+  <script src="vendor/aws4fetch-1.0.20.umd.js"></script>
+  <script src="vendor/kvs-webrtc-2.9.0.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

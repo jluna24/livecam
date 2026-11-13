@@ -28,3 +28,13 @@ output "pi_certificate_pem" {
   value       = aws_iot_certificate.pi.certificate_pem
   sensitive   = true # el provider lo marca así; se lee con tofu output -raw
 }
+
+output "web_url" {
+  description = "URL de la página viewer (abrir en el celular)"
+  value       = local.web_url
+}
+
+output "user_pool_id" {
+  description = "ID del User Pool (para crear el usuario con el CLI)"
+  value       = aws_cognito_user_pool.main.id
+}
