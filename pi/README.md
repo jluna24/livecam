@@ -48,3 +48,32 @@ CANAL=livecam-pi5-cam-01 ./master-prueba.sh
 ```
 
 El video se ve en la consola: Kinesis Video Streams → **Signaling channels** → el canal → **Media playback viewer**.
+
+## Paso 3: identidad con IoT y servicio systemd
+
+1. En la Pi, generar la llave y el CSR (la llave nunca sale de la Pi):
+   ```bash
+   mkdir -p -m 700 ~/livecam/certs && cd ~/livecam/certs
+   (umask 077; openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 -out pi.key)
+   openssl req -new -key pi.key -subj "/CN=livecam-pi5-cam-01" -out pi.csr
+   ```
+2. Copiar `pi.csr` a `infra/pi.csr` (fuera de git), aplicar con `tofu apply` y copiar el certificado a la Pi:
+   ```bash
+   tofu output -raw pi_certificate_pem > pi.crt   # → ~/livecam/certs/pi.crt
+   ```
+3. Compilar el ejemplo con IoT: `cmake .. -DCMAKE_BUILD_TYPE=Release -DIOT_CORE_ENABLE_CREDENTIALS=ON && make -j4`.
+4. Crear `~/livecam/livecam.env` (modo 600) a partir de `livecam.env.example`, con el endpoint que da `tofu output iot_credentials_endpoint`. Copiar `master.sh` a `~/livecam/`.
+5. Instalar el servicio:
+   ```bash
+   sudo cp ~/livecam/livecam-master.service /etc/systemd/system/
+   sudo systemctl enable systemd-time-wait-sync
+   sudo systemctl daemon-reload && sudo systemctl enable --now livecam-master
+   journalctl -u livecam-master -f
+   ```
+
+Probar el certificado sin el SDK:
+
+```bash
+curl --cert pi.crt --key pi.key -H 'x-amzn-iot-thingname: livecam-pi5-cam-01' \
+  https://<endpoint>/role-aliases/livecam-pi-master/credentials
+```

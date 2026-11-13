@@ -1,0 +1,21 @@
+[Unit]
+Description=livecam: master WebRTC de Kinesis Video Streams (webcam USB)
+Wants=network-online.target time-sync.target
+After=network-online.target time-sync.target
+# No dejar de reintentar nunca (cortes largos de internet).
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+User=jluna
+Group=video
+EnvironmentFile=/home/jluna/livecam/livecam.env
+ExecStart=/home/jluna/livecam/master.sh
+Restart=always
+RestartSec=10
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+
+[Install]
+WantedBy=multi-user.target

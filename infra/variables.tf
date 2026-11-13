@@ -9,3 +9,9 @@ variable "device_id" {
   type        = string
   default     = "pi5-cam-01"
 }
+
+variable "pi_csr_path" {
+  description = "CSR generado en la Pi (la llave privada se queda en la Pi). Fuera de git."
+  type        = string
+  default     = "pi.csr"
+}

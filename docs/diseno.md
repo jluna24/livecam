@@ -1,6 +1,6 @@
 # livecam — documento de diseño
 
-> Estado: **pasos 0, 1 y 2 listos; sigue el paso 3 (IoT credentials provider + servicio systemd).**
+> Estado: **pasos 0–2 listos; paso 3 casi listo (falta la prueba de corte de internet).**
 
 ## 1. Objetivo
 
@@ -91,6 +91,13 @@ Precios de us-east-1/us-east-2 según la página de precios de KVS (verificado 2
 - El ejemplo `devicesrc` usa `autovideosrc` y pide video crudo a 720p y 25 fps, lo que la C922 no da. El parche `pi/patches/0001-livecam-pipeline-env.patch` permite pasar el pipeline por `LIVECAM_GST_VIDEO`, y `pi/master-prueba.sh` usa el mismo pipeline del paso 1.
 - **Credenciales de la prueba:** `sts get-federation-token` por 1 h, con una política que solo permite `DescribeSignalingChannel`, `ConnectAsMaster`, `GetSignalingChannelEndpoint` y `GetIceServerConfig` sobre el canal.
 - **Resultado:** video visible en el visor de la consola. En la LAN la conexión fue directa (host ↔ prflx, RTT de 2 ms). El master ocupa ~40 % de un núcleo; la Pi quedó a 54 °C, sin throttling.
+
+### Resultado del paso 3 (2026-11-12, falta la prueba de corte de internet)
+
+- **Identidad de la Pi** (`infra/iot.tf`): la llave RSA se genera en la Pi y nunca sale de ella; OpenTofu solo firma su CSR. El thing se llama igual que el canal y el rol `livecam-pi-master` solo permite master sobre `channel/${credentials-iot:ThingName}/*`. La política de IoT solo permite `iot:AssumeRoleWithCertificate` sobre el role alias.
+- El ejemplo se compila con `-DIOT_CORE_ENABLE_CREDENTIALS=ON` y lee `AWS_IOT_CORE_*` de `~/livecam/livecam.env`, generado a partir de `pi/livecam.env.example`.
+- **Servicio** `pi/livecam-master.service`: `Restart=always`, sin límite de reintentos y ordenado después de `time-sync.target` (la Pi no tiene batería de reloj).
+- **Pruebas:** al matar el proceso, systemd lo reinicia y se reconecta. Al reiniciar la Pi, el servicio arranca solo ~36 s después del boot, con la hora ya sincronizada, y se conecta al primer intento.
 
 ## 6. Pasos
 
