@@ -1,6 +1,6 @@
 # livecam — documento de diseño
 
-> Estado: **pasos 0 y 1 listos; sigue el paso 2 (canal KVS + SDK de C en la Pi).**
+> Estado: **pasos 0, 1 y 2 listos; sigue el paso 3 (IoT credentials provider + servicio systemd).**
 
 ## 1. Objetivo
 
@@ -44,7 +44,7 @@ La Pi solo abre conexiones salientes: al endpoint de señalización (WSS) y a ST
 
 | Pieza | Para qué | Archivo |
 |---|---|---|
-| Canal de señalización KVS (`SINGLE_MASTER`) | Conectar al master (Pi) con los viewers | `infra/kvs.tf` |
+| Canal de señalización KVS (`SINGLE_MASTER`) | Conectar al master (Pi) con los viewers. Usa el provider `awscc`, porque `hashicorp/aws` no tiene este recurso | `infra/kvs.tf` |
 | IoT thing + certificado + política | Identidad de la Pi | `infra/iot.tf` |
 | Rol IAM + **role alias** de IoT | Credenciales temporales de master para la Pi (`ConnectAsMaster`, `GetSignalingChannelEndpoint`, `GetIceServerConfig`) | `infra/iot.tf` |
 | S3 (privado) + CloudFront con OAC | Hospedar la página con HTTPS | `infra/web.tf` |
@@ -84,6 +84,13 @@ Precios de us-east-1/us-east-2 según la página de precios de KVS (verificado 2
 - **Pipeline:** `v4l2src` (MJPEG 1280×720 a 15 fps) → `jpegdec` → `videoconvert` → `x264enc` (`ultrafast`, `zerolatency`, 1500 kbps, sin B-frames, perfil baseline). Script: `pi/prueba-camara.sh`.
 - **Prueba de 10 min:** 15.00 fps de promedio (14.86–15.13), **~28 % de un núcleo**, temperatura promedio de 51.6 °C y máxima de **53.8 °C**, ventilador a ~3,000 RPM, `throttled=0x0` todo el tiempo.
 - El consumo fue mucho menor que el estimado (1–2 núcleos), así que hay margen para subir a 720p a 30 fps más adelante.
+
+### Resultado del paso 2 (2026-11-12)
+
+- **SDK de WebRTC de KVS en C v1.20.0**, compilado en la Pi (Debian 13). `cmake` tarda ~9 min porque compila OpenSSL, libwebsockets, libsrtp y usrsctp.
+- El ejemplo `devicesrc` usa `autovideosrc` y pide video crudo a 720p y 25 fps, lo que la C922 no da. El parche `pi/patches/0001-livecam-pipeline-env.patch` permite pasar el pipeline por `LIVECAM_GST_VIDEO`, y `pi/master-prueba.sh` usa el mismo pipeline del paso 1.
+- **Credenciales de la prueba:** `sts get-federation-token` por 1 h, con una política que solo permite `DescribeSignalingChannel`, `ConnectAsMaster`, `GetSignalingChannelEndpoint` y `GetIceServerConfig` sobre el canal.
+- **Resultado:** video visible en el visor de la consola. En la LAN la conexión fue directa (host ↔ prflx, RTT de 2 ms). El master ocupa ~40 % de un núcleo; la Pi quedó a 54 °C, sin throttling.
 
 ## 6. Pasos
 
